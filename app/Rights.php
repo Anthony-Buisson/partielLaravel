@@ -1,32 +1,32 @@
 <?php
 namespace App;
+use DB;
 class Rights {
     public static function is($user_id, $role_name){
-        $user = \App\User::find($user_id);
-        foreach ($user->roles as $role){
-            if($role->name === $role_name) return true;
-        }
-        return false;
+        $roles = DB::table('roles')
+            ->join('role_user', 'role_user.role_id', '=', 'roles.id')
+            ->where([['role_user.user_id', '=', $user_id],['roles.name','=', $role_name]])
+            ->get();
+        return count($roles) > 0;
     }
     public static function can($user_id, $permission_name, $user = null){
-        $user = $user ?? \App\User::find($user_id);
+        $user = $user ?? User::find($user_id)->roles();
          foreach ($user->roles as $role){
             foreach ($role->permissions as $permission) {
                 if ($permission->name === $permission_name) return true;
             }
         }
-
         return false;
     }
     public static function canAll($user_id, $permissions_names){
-        $user = \App\User::find($user_id);
+        $user = User::find($user_id);
         foreach ($permissions_names as $permission){
             if(!Rights::can($user_id, $permission, $user)) return false;
         }
         return true;
     }
     public static function canAtLeast($user_id, $permissions_names){
-        $user = \App\User::find($user_id);
+        $user = User::find($user_id);
         foreach ($permissions_names as $permission){
             if(Rights::can($user_id, $permission, $user)) return true;
         }

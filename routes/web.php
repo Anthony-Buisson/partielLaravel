@@ -16,9 +16,10 @@ Route::get('/', function () {
 });
 Route::get('/test', function () {
     $users = \App\User::get();
+
     $str = ['user.delete', 'user.read'];
-    foreach ([$users[0],$users[1]] as $user) {
-        echo $user->name . ' '.' ? :' . (Rights::canAtLeast($user->id, $str) ? 'oui' : 'non') . ' (id : '.$user->id.')<br>';
+    foreach ($users as $user) {
+        echo $user->name . ' '.' ? :' . (Rights::can($user->id, 'user.read') ? 'oui' : 'non') . ' (id : '.$user->id.')<br>';
     }
     return;
 });
