@@ -10,7 +10,7 @@ class Rights {
         return count($roles) > 0;
     }
     public static function can($user_id, $permission_name, $user = null){
-        $user = $user ?? User::find($user_id)->roles();
+        $user = $user ?? User::find($user_id);
          foreach ($user->roles as $role){
             foreach ($role->permissions as $permission) {
                 if ($permission->name === $permission_name) return true;
