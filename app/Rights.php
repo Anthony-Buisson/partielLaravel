@@ -9,6 +9,7 @@ class Rights {
             ->get();
         return count($roles) > 0;
     }
+
     public static function can($user_id, $permission_name, $user = null){
         $user = $user ?? User::find($user_id);
          foreach ($user->roles as $role){
@@ -18,6 +19,7 @@ class Rights {
         }
         return false;
     }
+
     public static function canAll($user_id, $permissions_names){
         $user = User::find($user_id);
         foreach ($permissions_names as $permission){
@@ -25,6 +27,7 @@ class Rights {
         }
         return true;
     }
+
     public static function canAtLeast($user_id, $permissions_names){
         $user = User::find($user_id);
         foreach ($permissions_names as $permission){
@@ -32,14 +35,16 @@ class Rights {
         }
         return false;
     }
+
     public static function authIs($role_name){
         if(!\Auth::check()) return false;
-        $user = \Auth::user();
-        foreach ($user->roles as $role){
-            if($role->name === $role_name) return true;
-        }
-        return false;
+        $roles = DB::table('roles')
+            ->join('role_user', 'role_user.role_id', '=', 'roles.id')
+            ->where([['role_user.user_id', '=', \Auth::id()],['roles.name','=', $role_name]])
+            ->get();
+        return count($roles) > 0;
     }
+
     public static function authCan($permission_name, $user = null){
         if(!\Auth::check()) return false;
         $user = $user ?? \Auth::user();
@@ -50,6 +55,7 @@ class Rights {
         }
         return false;
     }
+
     public static function authCanAll($permissions_names){
         if(!\Auth::check()) return false;
         $user = \Auth::user();
@@ -58,6 +64,7 @@ class Rights {
         }
         return true;
     }
+
     public static function authCanAtLeast($permissions_names){
         if(!\Auth::check()) return false;
         $user = \Auth::user();
